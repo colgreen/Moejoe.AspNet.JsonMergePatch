@@ -26,16 +26,19 @@ namespace Moejoe.AspNet.JsonMergePatch.Internal
         {
             if (target.GetType() != _targetType)
                 throw new ArgumentException($"Expected Object of type '{_targetType.Name}'", nameof(target));
+
             foreach (var prop in _patchedProperties.Values)
                 prop.Key.ValueProvider.SetValue(target, prop.Value.ToObject(prop.Key.PropertyType));
+
             foreach (var sub in _patchedProperties.SubDocuments)
             {
                 var currentValue = sub.Key.ValueProvider.GetValue(target);
-                if (currentValue == null)
+                if (currentValue is null)
                     sub.Key.ValueProvider.SetValue(target, sub.Value.ToObject());
                 else
                     sub.Value.ApplyPatch(currentValue);
             }
+
             foreach (var coll in _patchedProperties.Collections)
                 coll.Key.ValueProvider.SetValue(target, coll.Value.ToObject(coll.Key.PropertyType));
         }
@@ -43,16 +46,27 @@ namespace Moejoe.AspNet.JsonMergePatch.Internal
         private void CompilePatchedProperties()
         {
             if (!(_serializer.ContractResolver.ResolveContract(_targetType) is JsonObjectContract resolver))
+            {
                 throw new InvalidOperationException(
                     $"Serializer could not provide ContractResolver for target type: '{_targetType.Name}'");
+            }
+
             foreach (var prop in _patchPatch.Properties())
             {
-                var targetProp = resolver.Properties.GetClosestMatchProperty(prop.Name);
-                if (targetProp == null || targetProp.Ignored || !targetProp.Writable) continue;
-                // Create a new PatchDocument for each provided complex Type 
+                JsonProperty targetProp = resolver.Properties.GetClosestMatchProperty(prop.Name);
+                if (targetProp is null || targetProp.Ignored || !targetProp.Writable) 
+                    continue;
+
+                // Create a new PatchDocument for each provided complex Type.
                 if (prop.Value.Type == JTokenType.Object)
-                    _patchedProperties.SubDocuments.Add(targetProp,
-                        new PatchDocument(prop.Value as JObject, targetProp.PropertyType, _serializer));
+                {
+                    _patchedProperties.SubDocuments.Add(
+                        targetProp,
+                        new PatchDocument(
+                            prop.Value as JObject,
+                            targetProp.PropertyType,
+                            _serializer));
+                }
                 else if (prop.Value.Type == JTokenType.Array)
                     _patchedProperties.Collections.Add(targetProp, prop.Value as JArray);
                 else
@@ -61,6 +75,7 @@ namespace Moejoe.AspNet.JsonMergePatch.Internal
         }
 
         internal JObject Patch => _patchPatch;
+
         internal object ToObject()
         {
             return _patchPatch.ToObject(_targetType);

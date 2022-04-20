@@ -15,14 +15,14 @@ namespace Moejoe.AspNet.JsonMergePatch.Tests
             var patchDocument = JsonConvert.DeserializeObject<JsonMergePatchDocument<ComplexTypeClass>>(json);
            
         }
+
         [Test]
         public void JsonConvertert_Returns_Null_For_NullJson()
         {
             
             var json = "null";
             var patchDocument = JsonConvert.DeserializeObject<JsonMergePatchDocument<ComplexTypeClass>>(json);
-            Assert.IsNull(patchDocument);
-           
+            Assert.IsNull(patchDocument);   
         }
     }
 }

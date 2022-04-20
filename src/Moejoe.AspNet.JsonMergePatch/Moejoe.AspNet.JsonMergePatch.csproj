@@ -10,7 +10,9 @@
     <Authors>Moritz Haslhofer</Authors>
     <Company />
     <Copyright>Copyright Moritz Haslhofer 2018</Copyright>
+	  <!--
     <PackageLicenseUrl>https://raw.githubusercontent.com/moejoe/Moejoe.AspNet.JsonMergePatch/master/LICENSE</PackageLicenseUrl>
+	-->
     <PackageProjectUrl>https://github.com/moejoe/Moejoe.AspNet.JsonMergePatch</PackageProjectUrl>
     <RepositoryUrl>https://github.com/moejoe/Moejoe.AspNet.JsonMergePatch</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

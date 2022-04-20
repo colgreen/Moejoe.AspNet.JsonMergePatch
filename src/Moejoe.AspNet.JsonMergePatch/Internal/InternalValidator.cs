@@ -9,17 +9,17 @@ using NJsonSchema.Validation;
 
 namespace Moejoe.AspNet.JsonMergePatch.Internal
 {
-
     internal class InternalValidator<TResource> where TResource : class
     {
-        
         private Dictionary<string, string[]> CollectErrors(ICollection<ValidationError> result)
         {
             var errors = new Dictionary<string, string[]>();
 
             foreach (var error in result)
             {
-                if (error.Kind == ValidationErrorKind.NullExpected) continue;
+                if (error.Kind == ValidationErrorKind.NullExpected)
+                    continue;
+
                 if (error is ChildSchemaValidationError)
                 {
                     var childError = error as ChildSchemaValidationError;
@@ -41,21 +41,35 @@ namespace Moejoe.AspNet.JsonMergePatch.Internal
         {
             schema.ActualSchema.AllowAdditionalProperties = true;
             schema.ActualSchema.RequiredProperties.Clear();
-            foreach (var oneOf in schema.OneOf) AllowAdditionalPropertiesAndRemoveRequiredProperties(oneOf);
-            foreach(var allOf in schema.AllOf) AllowAdditionalPropertiesAndRemoveRequiredProperties(allOf);
-            foreach (var prop in schema.ActualProperties) AllowAdditionalPropertiesAndRemoveRequiredProperties(prop.Value);
+
+            foreach (var oneOf in schema.OneOf)
+                AllowAdditionalPropertiesAndRemoveRequiredProperties(oneOf);
+
+            foreach(var allOf in schema.AllOf)
+                AllowAdditionalPropertiesAndRemoveRequiredProperties(allOf);
+
+            foreach (var prop in schema.ActualProperties)
+                AllowAdditionalPropertiesAndRemoveRequiredProperties(prop.Value);
         }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext, JObject target, JsonSerializerSettings settings = null)
+        public IEnumerable<ValidationResult> Validate(
+            ValidationContext validationContext,
+            JObject target,
+            JsonSerializerSettings settings = null)
         {
-            var schema = JsonSchema.FromType<TResource>(new JsonSchemaGeneratorSettings
-            {
-                DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.Null,
-            });
+            var schema = JsonSchema.FromType<TResource>(
+                new JsonSchemaGeneratorSettings
+                {
+                    DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.Null,
+                });
+
             AllowAdditionalPropertiesAndRemoveRequiredProperties(schema);
             var result = schema.Validate(target);
-            if (!result.Any()) return new[] {ValidationResult.Success};
+            if (!result.Any())
+                return new[] {ValidationResult.Success};
+
             var errors = CollectErrors(result.ToList());
+
             return errors.Select(p => new ValidationResult(string.Join(",", p.Value.Distinct()), new[] {p.Key}));
         }
     }

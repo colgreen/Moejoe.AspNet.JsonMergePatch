@@ -15,6 +15,7 @@ namespace Moejoe.AspNet.JsonMergePatch.Converter
         {
             throw new NotImplementedException();
         }
+
         /// <inheritdoc cref="JsonConverter"/>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
@@ -29,6 +30,7 @@ namespace Moejoe.AspNet.JsonMergePatch.Converter
                 {
                     return null;
                 }
+
                 var patchMergeDocument = Activator.CreateInstance(objectType, reader, serializer);
                 return patchMergeDocument;
             }
